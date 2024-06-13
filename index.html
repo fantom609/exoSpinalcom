@@ -15,6 +15,12 @@
             <div class="container">
                 <div class="list">
                     <h2>Batiments</h2>
+
+                    <div class="card" v-for="space in spaces">
+                        <button class="button" @click="updateFloors(space)">
+                            {{ space.name }}
+                        </button>
+                    </div>
                 </div>
 
                 <div class="list">
@@ -32,7 +38,24 @@
 
 <script>
     var app = new Vue({
-        el:'app',
+        el:'#app',
+        data: {
+            spaces: []
+        },
+        methods: {
+            async getSpaces() {
+                try {
+                    const response = await axios.get('https://api-developers.spinalcom.com/api/v1/geographicContext/space')
+                    console.log(response)
+                    this.spaces = response.data.children
+                } catch {
+                    console.log("error lors de la récupération des espaces")
+                }
+            }
+        },
+        mounted() {
+            this.getSpaces()
+        }
     })
 </script>
 
@@ -69,6 +92,26 @@
         background-color: #F8FAF9;
         box-shadow: rgba(0, 0, 0, 0.15) 3px 3px 4px;
         border-radius: 8px;
+    }
+
+    .card {
+        display: flex;
+        height: 80px;
+        border-radius: 8px;
+        margin-top: 6px;
+        margin-bottom: 6px;
+        justify-content: space-between;
+        padding: 8px;
+        width: 90%;
+    }
+
+    .button {
+        width: 100%;
+        margin: 16px;
+        border-radius: 8px;
+        font-size: 20px;
+        border: none;
+        box-shadow: rgba(0, 0, 0, 0.15) 3px 3px 4px;
     }
 
 
