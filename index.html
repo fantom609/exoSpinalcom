@@ -9,53 +9,62 @@
 </head>
 <body>
 
-    <div id="app">
-        <div class="background">
-            <h1 class="title">Analyse de l'occupation</h1>
-            <div class="container">
-                <div class="list">
-                    <h2>Batiments</h2>
+<div id="app">
+    <div class="background">
+        <h1 class="title">Analyse de l'occupation</h1>
+        <div class="container">
+            <div class="list">
+                <h2>Batiments</h2>
 
-                    <div class="card" v-for="space in spaces">
-                        <button class="button" @click="getFloors(space)">
-                            {{ space.name }}
-                        </button>
-                    </div>
+                <div class="card" v-for="space in spaces">
+                    <button class="button" @click="getFloors(space)">
+                        {{ space.name }}
+                    </button>
                 </div>
+            </div>
 
-                <div class="list">
-                    <h2>Etages</h2>
+            <div class="list">
+                <h2>Etages</h2>
 
-                    <div class="card" v-for="floor in floors">
-                        <button class="button" @click="updaterooms(floor)">
+                <div class="card" v-for="floor in floors">
+                    <div class="floor-container">
+                        <button class="button" @click="updaterooms(floor)" :class="{ 'selected-floor': floor === selectedFloor }">
                             {{ floor.name }}
                         </button>
-                    </div>
-                </div>
 
-                <div class="list">
-                    <h2>Piéces</h2>
-
-                    <div class="card-rooms" v-for="room in rooms">
-                        <p class="room-name">{{ room.name }}</p>
-                        <p class="badge occupied" v-if="room.occupation === true">Occupé</p>
-                        <p class="badge free" v-else-if="room.occupation === false">Disponible</p>
-                        <p class="badge undefined" v-else>Indeterminé</p>
+                        <div class="rate-card" :class="{ 'selected-floor': floor === selectedFloor }">
+                            <p>
+                                {{occupationRate(floor)}} %
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
+            <div class="list">
+                <h2>Piéces</h2>
+
+                <div class="card-rooms" v-for="room in rooms">
+                    <p class="room-name">{{ room.name }}</p>
+                    <p class="badge occupied" v-if="room.occupation === true">Occupé</p>
+                    <p class="badge free" v-else-if="room.occupation === false">Disponible</p>
+                    <p class="badge undefined" v-else>Indeterminé</p>
+                </div>
+            </div>
+        </div>
     </div>
+
+</div>
 
 
 <script>
     var app = new Vue({
-        el:'#app',
+        el: '#app',
         data: {
             spaces: [],
             floors: [],
-            rooms: []
+            rooms: [],
+            selectedFloor: null,
         },
         methods: {
             async getSpaces() {
@@ -93,7 +102,20 @@
                 this.floors = space.children
             },
             async updaterooms(floor) {
+                this.selectedFloor = floor;
                 this.rooms = floor.children
+            },
+            occupationRate(floor) {
+                let sum = 0;
+                const rooms = floor.children
+                rooms.map(r => {
+                    if (r.occupation) {
+                        sum++;
+                    }
+                });
+                sum *= 100;
+                const avg = parseInt(sum / rooms.length, 10);
+                return avg;
             },
         },
 
@@ -197,6 +219,26 @@
         background-color: #070762;
     }
 
+    .floor-container {
+        width: 100%;
+        display: flex;
+    }
+
+    .rate-card {
+        background-color: #f1f0f0;
+        width: 64px;
+        margin: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: rgba(0, 0, 0, 0.15) 3px 3px 4px;
+        border-radius: 8px;
+        align-items: center
+    }
+
+    .selected-floor {
+        border: 2px solid #FFA400;
+    }
 
 </style>
 </body>
