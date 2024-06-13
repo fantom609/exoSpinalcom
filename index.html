@@ -10,6 +10,22 @@
 <body>
 
     <div id="app">
+        <div class="background">
+            <h1 class="title">Analyse de l'occupation</h1>
+            <div class="container">
+                <div class="list">
+                    <h2>Batiments</h2>
+                </div>
+
+                <div class="list">
+                    <h2>Etages</h2>
+                </div>
+
+                <div class="list">
+                    <h2>Piéces</h2>
+                </div>
+            </div>
+        </div>
 
     </div>
 
@@ -19,5 +35,43 @@
         el:'app',
     })
 </script>
+
+<style>
+
+    .background {
+        background-color: #EEF4F4;
+        border-radius: 8px;
+        margin-inline: 8%;
+        padding: 4px;
+        margin-top: 24px;
+    }
+
+    .title {
+        text-align: center;
+    }
+
+    .container {
+        display: flex;
+        padding: 16px;
+        height: 80vh;
+    }
+
+    .list {
+        overflow-y: auto;
+        max-height: 100%;
+        margin: 12px;
+        display: flex;
+        flex-direction: column;
+        width: 33%;
+        align-content: center;
+        align-items: center;
+        justify-content: flex-start;
+        background-color: #F8FAF9;
+        box-shadow: rgba(0, 0, 0, 0.15) 3px 3px 4px;
+        border-radius: 8px;
+    }
+
+
+</style>
 </body>
 </html>
