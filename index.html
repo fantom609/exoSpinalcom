@@ -17,7 +17,7 @@
                     <h2>Batiments</h2>
 
                     <div class="card" v-for="space in spaces">
-                        <button class="button" @click="updateFloors(space)">
+                        <button class="button" @click="getFloors(space)">
                             {{ space.name }}
                         </button>
                     </div>
@@ -25,10 +25,23 @@
 
                 <div class="list">
                     <h2>Etages</h2>
+
+                    <div class="card" v-for="floor in floors">
+                        <button class="button" @click="updaterooms(floor)">
+                            {{ floor.name }}
+                        </button>
+                    </div>
                 </div>
 
                 <div class="list">
                     <h2>Piéces</h2>
+
+                    <div class="card-rooms" v-for="room in rooms">
+                        <p class="room-name">{{ room.name }}</p>
+                        <p class="badge occupied" v-if="room.occupation === true">Occupé</p>
+                        <p class="badge free" v-else-if="room.occupation === false">Disponible</p>
+                        <p class="badge undefined" v-else>Indeterminé</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -40,7 +53,9 @@
     var app = new Vue({
         el:'#app',
         data: {
-            spaces: []
+            spaces: [],
+            floors: [],
+            rooms: []
         },
         methods: {
             async getSpaces() {
@@ -51,8 +66,37 @@
                 } catch {
                     console.log("error lors de la récupération des espaces")
                 }
-            }
+            },
+            async getFloors(space) {
+                this.floors = []
+                try {
+                    for (const room of space.children) {
+                        const promises = [];
+                        for (const r of room.children) {
+                            const promise = axios.get(`https://api-developers.spinalcom.com/api/v1/room/${r.dynamicId}/control_endpoint_list`)
+                                .then(response => {
+                                    if (response.data[0]) {
+                                        response.data[0].endpoints.forEach(e => {
+                                            r[e.type.toLowerCase()] = e.currentValue;
+                                        });
+                                    }
+                                    return r;
+                                });
+                            promises.push(promise);
+                        }
+                        room.children = await Promise.all(promises);
+                        this.floors.push(room);
+                    }
+                } catch {
+                    console.log("error")
+                }
+                this.floors = space.children
+            },
+            async updaterooms(floor) {
+                this.rooms = floor.children
+            },
         },
+
         mounted() {
             this.getSpaces()
         }
@@ -112,6 +156,45 @@
         font-size: 20px;
         border: none;
         box-shadow: rgba(0, 0, 0, 0.15) 3px 3px 4px;
+    }
+
+    .badge {
+        padding: 8px;
+        box-shadow: rgba(0, 0, 0, 0.15) 2px 2px 4px;
+        color: white;
+        border-radius: 4px;
+        margin: 0;
+        display: flex;
+        height: 24px;
+        flex-direction: column;
+        justify-content: center
+    }
+
+    .card-rooms {
+        display: flex;
+        width: 90%;
+        min-height: 60px;
+        border-radius: 8px;
+        box-shadow: rgba(0, 0, 0, 0.15) 3px 3px 4px;
+        margin-top: 6px;
+        margin-bottom: 6px;
+        padding: 16px;
+        justify-content: space-between;
+        background-color: #f0f0f3;
+        align-items: center;
+        font-size: 18px;
+    }
+
+    .occupied {
+        background-color: #015b01;
+    }
+
+    .free {
+        background-color: #a60a0a;
+    }
+
+    .undefined {
+        background-color: #070762;
     }
 
 
